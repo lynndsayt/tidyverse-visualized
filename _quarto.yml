@@ -1,0 +1,23 @@
+project:
+  type: website
+
+website:
+  title: "website-pilot"
+  navbar:
+   left:
+      - href: index.qmd
+        text: Home
+      - href: bergmanns-rule.qmd
+        text: "Bergmann's Rule"
+      - href: sources.qmd
+        text: "References"
+format:
+  html:
+    theme:
+      - sandstone
+      - brand
+    css: styles.css
+    toc: true
+
+editor: source
+

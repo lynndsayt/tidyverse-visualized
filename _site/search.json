@@ -1,0 +1,37 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "website-pilot",
+    "section": "",
+    "text": "Welcome! This site is a pilot for my SCICOMM 701 project as part of the Graduate Academic Certificate in Science Communication."
+  },
+  {
+    "objectID": "dplyr-filter.html",
+    "href": "dplyr-filter.html",
+    "title": "dplyr: filter()",
+    "section": "",
+    "text": "filter() keeps only the rows that meet a condition. Choose a cut and a minimum carat and see which rows survive.\n\nviewof site = Inputs.select(site_options, {label: \"Site\"})\n\n\n\n\n\n\n\nviewof min_date = Inputs.select(date_options, {label: \"Earliest date\"})\n\n\n\n\n\n\n\nrows = transpose(choices)\nmatch = rows.find(d =&gt; d.site === site && d.min_date === min_date)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nThe code:\n\n{\nconst pre = document.createElement(\"pre\");\npre.className = \"plot-code\";\nconst code = document.createElement(\"code\");\ncode.textContent = match.code;\npre.appendChild(code);\nreturn pre;\n}\n\n\n\n\n\n\nThe result:\n\n{\n  const wrap = document.createElement(\"div\");\n  wrap.className = \"side-by-side\";\n  wrap.innerHTML =\n    \"&lt;div&gt;&lt;p&gt;&lt;b&gt;Before&lt;/b&gt; (green = kept, struck-through = dropped)&lt;/p&gt;\" + match.before + \"&lt;/div&gt;\" +\n    \"&lt;div&gt;&lt;p&gt;&lt;b&gt;After&lt;/b&gt;&lt;/p&gt;\" + match.after + \"&lt;/div&gt;\";\n  return wrap;\n}"
+  },
+  {
+    "objectID": "ggplot-scatter.html",
+    "href": "ggplot-scatter.html",
+    "title": "ggplot2: geom_point()",
+    "section": "",
+    "text": "Our tutorial will look at the pie_crab dataset provided by the lterdatasampler package. Let’s start by loading it into R.\nIf you haven’t already, you will need to download the package. Run the following code in your console to install the package. There are a couple other packages that will be needed for this tutorial.\n\ninstall.packages('lterdatasampler')\ninstall.packages('ggplot2')\n\nNow that you have installed the package, you will need to load it in order to gain access to the datasets. Do this using the library() function. Put this at the top of your script, along with any other packages you want to use.\n\nlibrary(lterdatasampler)\nlibrary(ggplot2)\n\nNow that the pacakge is loaded, we can get our data using the data() function. This will create an object called pie_crab that will now be in our global environment.\n\ndata(\"pie_crab\")\n\ngeom_point() draws one dot per row of your data. Choose which columns go on each axis and optionally colour the dots by a third column.\n\nviewof x = Inputs.select([\"size\", \"air_temp\", \"air_temp_sd\", \"water_temp\", \"water_temp_sd\"], {label: \"X axis\"})\n\n\n\n\n\n\n\nviewof y = Inputs.select([\"size\", \"air_temp\", \"air_temp_sd\", \"water_temp\", \"water_temp_sd\"], {label: \"Y axis\"})\n\n\n\n\n\n\n\nviewof color = Inputs.select([\"size\", \"air_temp\", \"air_temp_sd\", \"water_temp\", \"water_temp_sd\"], {label: \"Colour by\"})\n\n\n\n\n\n\n\nrows = transpose(choices)\nmatch = rows.find(d =&gt; d.x === x && d.y === y && d.color === color)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n{\nif (!match) {\nconst p = document.createElement(\"p\");\np.textContent = \"Pick two different columns for X and Y.\";\nreturn p;\n}\nconst img = document.createElement(\"img\");\nimg.src = match.image;\nimg.style.maxWidth = \"100%\";\nreturn img;\n}\n\n\n\n\n\n\nThe code that made this plot:\n\n{\nconst pre = document.createElement(\"pre\");\npre.className = \"plot-code\";\nconst code = document.createElement(\"code\");\ncode.textContent = match ? match.code : \"\";\npre.appendChild(code);\nreturn pre;\n}"
+  },
+  {
+    "objectID": "bergmanns-rule.html",
+    "href": "bergmanns-rule.html",
+    "title": "Bergmann’s rule",
+    "section": "",
+    "text": "Here we will use the pie_crab dataset\n\ninstall.packages(c(\"lterdatasampler\", \"ggplot2\", \"dyplr\"))\n\n\nlibrary(lterdatasampler)\nlibrary(ggplot2)\nlibrary(dplyr)\n\n\ncrab_data &lt;- data(pie_crab)\n\nSelect function (only show 15 rows, rather than the whole dataset)\n\nviewof col1 = Inputs.select(col_options, {label: \"Column 1\"})\n\n\n\n\n\n\n\nviewof col2 = Inputs.select(col_options, {label: \"Column 2\"})\n\n\n\n\n\n\n\nviewof col3 = Inputs.select(col_options, {label: \"Column 3\"})\n\n\n\n\n\n\n\nrows = transpose(choices)\nmatch = rows.find(d =&gt; d.col1 === col1 && d.col2 === col2 && d.col3 === col3)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n{\n  const pre = document.createElement(\"pre\");\n  pre.className = \"plot-code\";\n  const code = document.createElement(\"code\");\n  code.textContent = match.code;\n  pre.appendChild(code);\n  return pre;\n}\n\n\n\n\n\n\n\n{\n  const wrap = document.createElement(\"div\");\n  wrap.className = \"side-by-side\";\n  wrap.innerHTML =\n    \"&lt;div&gt;&lt;p&gt;&lt;b&gt;Before&lt;/b&gt;&lt;/p&gt;\" + match.before + \"&lt;/div&gt;\" +\n    \"&lt;div&gt;&lt;p&gt;&lt;b&gt;After&lt;/b&gt;&lt;/p&gt;\" + match.after + \"&lt;/div&gt;\";\n  return wrap;\n}\n\n\n\n\n\n\nlet’s try this\n\nviewof site2 = Inputs.select(site_options, {label: \"Site\"})\n\n\n\n\n\n\n\nviewof min_size2 = Inputs.select(size_options, {label: \"Minimum size\"})\n\n\n\n\n\n\n\nrows2 = transpose(choices2)\nmatch2 = rows2.find(d =&gt; d.site === site2 && d.size === min_size2)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n{\n  const pre = document.createElement(\"pre\");\n  pre.className = \"plot-code\";\n  const code = document.createElement(\"code\");\n  code.textContent = match2.code;\n  pre.appendChild(code);\n  return pre;\n}\n\n\n\n\n\n\n\n{\n  const wrap = document.createElement(\"div\");\n  wrap.className = \"side-by-side\";\n  wrap.innerHTML =\n    \"&lt;div&gt;&lt;p&gt;&lt;b&gt;Before&lt;/b&gt;&lt;/p&gt;\" + match2.before + \"&lt;/div&gt;\" +\n    \"&lt;div&gt;&lt;p&gt;&lt;b&gt;After&lt;/b&gt;&lt;/p&gt;\" + match2.after + \"&lt;/div&gt;\";\n  return wrap;\n}\n\n\n\n\n\n\ngeom_point() draws one dot per row of your data. Choose which columns go on each axis and optionally colour the dots by a third column.\n\nviewof x = Inputs.select(variables, {label: \"X axis\"})\n\n\n\n\n\n\n\nviewof y = Inputs.select(variables, {label: \"Y axis\"})\n\n\n\n\n\n\n\nviewof color = Inputs.select(variables, {label: \"Colour by\"})\n\n\n\n\n\n\n\nrows3 = transpose(choices3)\nmatch3 = rows3.find(d =&gt; d.x === x && d.y === y && d.color === color)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n{\nif (!match3) {\nconst p = document.createElement(\"p\");\np.textContent = \"Pick two different columns for X and Y.\";\nreturn p;\n}\nconst img = document.createElement(\"img\");\nimg.src = match3.image;\nimg.style.maxWidth = \"100%\";\nreturn img;\n}\n\n\n\n\n\n\nThe code that made this plot:\n\n{\nconst pre = document.createElement(\"pre\");\npre.className = \"plot-code\";\nconst code = document.createElement(\"code\");\ncode.textContent = match3 ? match3.code : \"\";\npre.appendChild(code);\nreturn pre;\n}"
+  },
+  {
+    "objectID": "sources.html",
+    "href": "sources.html",
+    "title": "References",
+    "section": "",
+    "text": "I used Claude Sonnet 5.5 to create the template from which this website was built."
+  }
+]

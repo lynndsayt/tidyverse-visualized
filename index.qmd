@@ -1,0 +1,5 @@
+---
+title: "website-pilot"
+---
+
+Welcome! This site is a pilot for my SCICOMM 701 project as part of the Graduate Academic Certificate in Science Communication.

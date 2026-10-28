@@ -1,0 +1,26 @@
+/* css styles */
+.hl-table { border-collapse: collapse; font-size: 0.85rem; margin-bottom: 1rem; }
+.hl-table th, .hl-table td { padding: 2px 10px; border-bottom: 1px solid #ddd; text-align: right; }
+.hl-table tr.kept td { background: #d8f0d8; font-weight: 600; }
+.hl-table tr.dropped td { color: #999; text-decoration: line-through; }
+.hl-table td.new, .hl-table th.new { background: #fff3b0; }
+.side-by-side { display: flex; gap: 1.5rem; align-items: flex-start; }
+.side-by-side > div { overflow-x: auto; min-width: 0; }
+.hl-table { font-size: 0.75rem; }
+
+.plot-and-code { display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap; }
+.plot-and-code > div { flex: 3 1 320px; min-width: 0; }
+.plot-and-code > pre { flex: 1 1 260px; min-width: 0; }
+
+.plot-code {
+  background: #f1f5f9;
+  color: #1e293b;
+  padding: 1rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  overflow-x: auto;
+}
+.plot-code code { color: inherit; background: none; }
+
+.hl-table td.kept-col, .hl-table th.kept-col { background: #d8f0d8; font-weight: 600; }
+.hl-table td.dropped-col, .hl-table th.dropped-col { color: #999; text-decoration: line-through; }

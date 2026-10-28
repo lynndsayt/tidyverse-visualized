@@ -1,0 +1,5 @@
+---
+title: "References"
+---
+
+I used Claude Sonnet 5.5 to create the template from which this website was built.

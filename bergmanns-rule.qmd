@@ -1,0 +1,300 @@
+---
+title: "Bergmann's rule"
+execute:
+  echo: false
+---
+
+```{r source}
+#| message: false
+source("R/helpers.R")
+library(lterdatasampler)
+data(pie_crab)
+```
+
+
+Here we will use the pie_crab dataset
+
+```{r install_packages}
+#| eval: false
+#| echo: true
+install.packages(c("lterdatasampler", "ggplot2", "dyplr"))
+```
+
+```{r load_libraries}
+#| echo: true
+#| message: false
+library(lterdatasampler)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r load_data}
+#| echo: true
+crab_data <- data(pie_crab)
+```
+
+Select function (only show 15 rows, rather than the whole dataset)
+
+
+```{r select_function}
+crab_data <- pie_crab %>%
+  slice(round(seq(1, n(), length.out = 15))) %>%
+  select(date, site, latitude, size, air_temp, water_temp)
+
+col_options <- c("none", names(crab_data))
+
+choices <- expand.grid(
+  col1 = col_options, 
+  col2 = col_options, 
+  col3 = col_options,
+  stringsAsFactors = FALSE)
+
+make_code <- function(col1, col2, col3) {
+  cols <- unique(c(col1, col2, col3))
+  cols <- cols[cols != "none"]
+  if (length(cols) == 0) return("crab_data")
+  paste0("crab_data %>%\n  select(", paste(cols, collapse = ", "), ")")
+}
+
+choices$code <- mapply(make_code, choices$col1, choices$col2, choices$col3,
+                       USE.NAMES = FALSE)
+results <- lapply(choices$code, function(code) eval(parse(text = code)))
+
+choices$before <- vapply(results, function(r) {
+  kept <- names(crab_data) %in% names(r)
+  html_table(crab_data, col_class = ifelse(kept, "kept-col", "dropped-col"))
+}, character(1))
+
+choices$after <- vapply(results, function(r) html_table(r), character(1))
+
+ojs_define(choices = choices, 
+           col_options = col_options)
+```
+
+```{ojs select_func_input1}
+viewof col1 = Inputs.select(col_options, {label: "Column 1"})
+```
+
+```{ojs select_func_input2}
+viewof col2 = Inputs.select(col_options, {label: "Column 2"})
+```
+
+```{ojs select_func_input3}
+viewof col3 = Inputs.select(col_options, {label: "Column 3"})
+```
+
+```{ojs select_func_input4}
+//| output: false
+rows = transpose(choices)
+match = rows.find(d => d.col1 === col1 && d.col2 === col2 && d.col3 === col3)
+```
+
+```{ojs select_func_display}
+{
+  const pre = document.createElement("pre");
+  pre.className = "plot-code";
+  const code = document.createElement("code");
+  code.textContent = match.code;
+  pre.appendChild(code);
+  return pre;
+}
+```
+
+```{ojs select_func_display2}
+{
+  const wrap = document.createElement("div");
+  wrap.className = "side-by-side";
+  wrap.innerHTML =
+    "<div><p><b>Before</b></p>" + match.before + "</div>" +
+    "<div><p><b>After</b></p>" + match.after + "</div>";
+  return wrap;
+}
+```
+
+let's try this
+
+```{r filter_func}
+crab_data <- pie_crab %>% 
+  slice(round(seq(1, n(), length.out = 20))) %>% 
+  mutate(row = row_number(), .before = 1) %>% 
+  select(row, date, site, latitude, size, air_temp)
+
+site_options <- c("any", sort(unique(as.character(crab_data$site))))
+size_options <- c(0, 15, 20, 25)
+
+choices2 <- expand.grid(
+  site = site_options,
+  size = size_options, 
+  stringsAsFactors = FALSE
+)
+
+make_code_filter <- function(site, size){
+  conditions <- c(
+    if(site != "any") paste0('site == "', site, '"'),
+    if(size > 0) paste0('size >= ', size)
+  )
+  if(length(conditions) == 0) return("crab_data")
+  paste0("crab_data %>%\n filter(", paste(conditions, collapse = ", "), ")")
+}
+
+choices2$code <- mapply(make_code_filter, choices2$site, choices2$size,
+                        USE.NAMES = FALSE)
+
+results2 <- lapply(choices2$code, function(code) eval(parse(text = code)))
+
+choices2$before <- vapply(results2, function(r) {
+  kept <- crab_data$row %in% r$row
+  html_table(select(crab_data, -row), row_class = ifelse(kept, "kept", "dropped"))
+}, character(1))
+
+choices2$after <- vapply(results2, function(r) {
+  html_table(select(r, -row))
+}, character(1))
+
+ojs_define(choices2 = choices2,
+           site_options = site_options,
+           size_options = size_options)
+```
+
+```{ojs filter_func_input1}
+viewof site2 = Inputs.select(site_options, {label: "Site"})
+```
+
+```{ojs filter_func_input2}
+viewof min_size2 = Inputs.select(size_options, {label: "Minimum size"})
+```
+
+```{ojs filter_func_input3}
+//| output: false
+rows2 = transpose(choices2)
+match2 = rows2.find(d => d.site === site2 && d.size === min_size2)
+```
+
+```{ojs filter_func_display1}
+{
+  const pre = document.createElement("pre");
+  pre.className = "plot-code";
+  const code = document.createElement("code");
+  code.textContent = match2.code;
+  pre.appendChild(code);
+  return pre;
+}
+```
+
+```{ojs filter_func_display2}
+{
+  const wrap = document.createElement("div");
+  wrap.className = "side-by-side";
+  wrap.innerHTML =
+    "<div><p><b>Before</b></p>" + match2.before + "</div>" +
+    "<div><p><b>After</b></p>" + match2.after + "</div>";
+  return wrap;
+}
+```
+
+`geom_point()` draws one dot per row of your data. Choose which columns go on each axis and optionally colour the dots by a third column.
+
+```{r create_plot_r}
+crab_data <- pie_crab %>% 
+  select(site, latitude, size, air_temp, water_temp)
+
+variables <- sort(unique(as.character(names(crab_data))))
+
+choices3 <- expand.grid(
+  x = c(variables),
+  y = c(variables),
+  color = c(variables),
+  stringsAsFactors = FALSE
+) %>% 
+  filter(x != y)
+
+axis_names <- c(
+  size = "Size", 
+  air_temp = "Air Temperature",
+  water_temp = "Water Temperature",
+  latitude = "Latitude",
+  site = "Site")
+
+nice <- function(v) if (v %in% names(axis_names)) axis_names[[v]] else v
+
+make_code_plot <- function(x, y, color) {
+  aes_txt <- paste0("x = ", x, ", y = ", y)
+  if (color != "none") aes_txt <- paste0(aes_txt, ", color = ", color)
+
+  labs_lines <- c(
+    paste0('x = "', nice(x), '"'),
+    paste0('y = "', nice(y), '"')
+  )
+  if (color != "none") {
+    labs_lines <- c(labs_lines, paste0('color = "', nice(color), '"'))
+  }
+  labs_txt <- paste0("    ", labs_lines, collapse = ",\n")
+
+  paste0(
+    "crab_data %>%\n",
+    "  ggplot(aes(", aes_txt, ")) +\n",
+    "  geom_point() +\n",
+    "  labs(\n", labs_txt, ") +\n",
+    "  theme_bw()"
+  )
+}
+
+choices3$code <- mapply(make_code_plot, 
+                       choices3$x, 
+                       choices3$y, 
+                       choices3$color,
+                       USE.NAMES = FALSE)
+
+choices3$image <- vapply(choices3$code, function(code) {
+  plot_to_uri(eval(parse(text = code)))
+  }, 
+  character(1), USE.NAMES = FALSE)
+
+ojs_define(choices3 = choices3,
+           variables = variables)
+```
+
+```{ojs dropdown_x}
+viewof x = Inputs.select(variables, {label: "X axis"})
+```
+
+```{ojs dropdown_y}
+viewof y = Inputs.select(variables, {label: "Y axis"})
+```
+
+```{ojs dropdown_color}
+viewof color = Inputs.select(variables, {label: "Colour by"})
+```
+
+```{ojs transpose}
+//| output: false
+rows3 = transpose(choices3)
+match3 = rows3.find(d => d.x === x && d.y === y && d.color === color)
+```
+
+```{ojs prevent_same_dropdowns}
+{
+if (!match3) {
+const p = document.createElement("p");
+p.textContent = "Pick two different columns for X and Y.";
+return p;
+}
+const img = document.createElement("img");
+img.src = match3.image;
+img.style.maxWidth = "100%";
+return img;
+}
+```
+
+The code that made this plot:
+
+```{ojs display_code}
+{
+const pre = document.createElement("pre");
+pre.className = "plot-code";
+const code = document.createElement("code");
+code.textContent = match3 ? match3.code : "";
+pre.appendChild(code);
+return pre;
+}
+```
