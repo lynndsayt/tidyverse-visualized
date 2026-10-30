@@ -1,5 +1,11 @@
 ---
-title: "References"
+title: "About"
 ---
 
-I used Claude Sonnet 5.5 to create the template from which this website was built.
+This website was created as a project towards the requirements of the Graduate Academic Certificate in Science Communication at McMaster University (2026 - 2027).
+
+I used Claude Sonnet 5.5 to create a template for the Quarto documents, which I then customized for the specific project. 
+The project itself was inspired by Andrew Heiss' "Visualizing {dplyr}'s mutate(), summarize(), group_by(), and ungroup() with animations" blog post. 
+The interactivity features were inspired by "Parable of the Polygons" created by Vi Hart and Nicky Case. 
+
+The data set comes from `lterdatasampler`, an R package created by the Long Term Ecological Research program (LTER) Network. 

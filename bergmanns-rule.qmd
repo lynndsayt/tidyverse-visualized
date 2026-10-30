@@ -1,5 +1,5 @@
 ---
-title: "Bergmann's rule"
+title: "Visualizing R"
 execute:
   echo: false
 ---
@@ -8,17 +8,27 @@ execute:
 #| message: false
 source("R/helpers.R")
 library(lterdatasampler)
+library(kableExtra)
 data(pie_crab)
 ```
 
+To learn about the functions of the `tidyverse`, we will explore a dataset from the Long Term Ecological Research program Network. This data describes the body size of Fiddler crabs in salt marshes from Florida to Massachusetts during the summer of 2016. You can read more about this data [here](https://lter.github.io/lterdatasampler/articles/pie_crab_vignette.html)
 
-Here we will use the pie_crab dataset
+Climate change has caused this species to expand its range northward in response to ocean warming. As a result, we can observe the species following Bergmann's rule, which predicts that organisms at higher latitudes are larger than those at lower latitudes. 
+
+Let's start exploring the data using R and RStudio to see if the sampled Fiddler crabs follow this prediction. 
+
+### Exploring the Data
+
+We will need to start by installing the packages needed for these evaluations. We can do that with the `install.packages()` function. This make take a while, but don't worry, once you've install the packages on your computer once, you won't need to do it again! 
 
 ```{r install_packages}
 #| eval: false
 #| echo: true
 install.packages(c("lterdatasampler", "ggplot2", "dyplr"))
 ```
+
+Now that our packages are installed, we need to load them into our R session. We can do this using the `library()` function, as shown below. 
 
 ```{r load_libraries}
 #| echo: true
@@ -28,18 +38,33 @@ library(ggplot2)
 library(dplyr)
 ```
 
+Now that we have the packages loaded, we can get at our data. Let's call it `crab_data`. 
+
 ```{r load_data}
 #| echo: true
 crab_data <- data(pie_crab)
 ```
 
-Select function (only show 15 rows, rather than the whole dataset)
+```{r}
+#| eval: true
+#| echo: false
+pie_crab %>% 
+  kbl() %>% 
+  kable_styling("hover") %>% 
+    scroll_box(
+    height = "200px", 
+    fixed_thead = TRUE
+  )
+```
 
+This data set comes with lots of columns! Let's see how we would be able to narrow it down. We can use the select function to create a new data set that only has the desired columns. Test it out below! Pay attention to how the column names inside the `select()` functions changes as you change what columns to include. Note that only 15 rows are shown, but the data is R actually has 392!
+
+#### Select function
 
 ```{r select_function}
 crab_data <- pie_crab %>%
   slice(round(seq(1, n(), length.out = 15))) %>%
-  select(date, site, latitude, size, air_temp, water_temp)
+  select(date, site, latitude, size, air_temp)
 
 col_options <- c("none", names(crab_data))
 
@@ -111,7 +136,9 @@ match = rows.find(d => d.col1 === col1 && d.col2 === col2 && d.col3 === col3)
 }
 ```
 
-let's try this
+#### Filter function
+
+Another important function from the `dplyr` package is `filter()`. This function only keeps rows that meet certain conditions. Try it out below. Again, we are only looking at 15 rows of the 392 that the whole data set has. Pay attention to how sites and carapace size are excluded based on the conditions specified in the code. 
 
 ```{r filter_func}
 crab_data <- pie_crab %>% 
@@ -119,12 +146,12 @@ crab_data <- pie_crab %>%
   mutate(row = row_number(), .before = 1) %>% 
   select(row, date, site, latitude, size, air_temp)
 
-site_options <- c("any", sort(unique(as.character(crab_data$site))))
-size_options <- c(0, 15, 20, 25)
+site_options_filt <- c("any", sort(unique(as.character(crab_data$site))))
+size_options_filt <- c(0, 15, 20, 25)
 
-choices2 <- expand.grid(
-  site = site_options,
-  size = size_options, 
+choices_filt <- expand.grid(
+  site = site_options_filt,
+  size = size_options_filt, 
   stringsAsFactors = FALSE
 )
 
@@ -137,37 +164,37 @@ make_code_filter <- function(site, size){
   paste0("crab_data %>%\n filter(", paste(conditions, collapse = ", "), ")")
 }
 
-choices2$code <- mapply(make_code_filter, choices2$site, choices2$size,
+choices_filt$code <- mapply(make_code_filter, choices_filt$site, choices_filt$size,
                         USE.NAMES = FALSE)
 
-results2 <- lapply(choices2$code, function(code) eval(parse(text = code)))
+results_filt <- lapply(choices_filt$code, function(code) eval(parse(text = code)))
 
-choices2$before <- vapply(results2, function(r) {
+choices_filt$before <- vapply(results_filt, function(r) {
   kept <- crab_data$row %in% r$row
   html_table(select(crab_data, -row), row_class = ifelse(kept, "kept", "dropped"))
 }, character(1))
 
-choices2$after <- vapply(results2, function(r) {
+choices_filt$after <- vapply(results_filt, function(r) {
   html_table(select(r, -row))
 }, character(1))
 
-ojs_define(choices2 = choices2,
-           site_options = site_options,
-           size_options = size_options)
+ojs_define(choices_filt = choices_filt,
+           site_options_filt = site_options_filt,
+           size_options_filt = size_options_filt)
 ```
 
 ```{ojs filter_func_input1}
-viewof site2 = Inputs.select(site_options, {label: "Site"})
+viewof site_filt = Inputs.select(site_options_filt, {label: "Site"})
 ```
 
 ```{ojs filter_func_input2}
-viewof min_size2 = Inputs.select(size_options, {label: "Minimum size"})
+viewof min_size_filt = Inputs.select(size_options_filt, {label: "Minimum size"})
 ```
 
 ```{ojs filter_func_input3}
 //| output: false
-rows2 = transpose(choices2)
-match2 = rows2.find(d => d.site === site2 && d.size === min_size2)
+rows_filt = transpose(choices_filt)
+match_filt = rows_filt.find(d => d.site === site_filt && d.size === min_size_filt)
 ```
 
 ```{ojs filter_func_display1}
@@ -175,7 +202,7 @@ match2 = rows2.find(d => d.site === site2 && d.size === min_size2)
   const pre = document.createElement("pre");
   pre.className = "plot-code";
   const code = document.createElement("code");
-  code.textContent = match2.code;
+  code.textContent = match_filt.code;
   pre.appendChild(code);
   return pre;
 }
@@ -186,101 +213,356 @@ match2 = rows2.find(d => d.site === site2 && d.size === min_size2)
   const wrap = document.createElement("div");
   wrap.className = "side-by-side";
   wrap.innerHTML =
-    "<div><p><b>Before</b></p>" + match2.before + "</div>" +
-    "<div><p><b>After</b></p>" + match2.after + "</div>";
+    "<div><p><b>Before</b></p>" + match_filt.before + "</div>" +
+    "<div><p><b>After</b></p>" + match_filt.after + "</div>";
   return wrap;
 }
 ```
 
-`geom_point()` draws one dot per row of your data. Choose which columns go on each axis and optionally colour the dots by a third column.
+For this analysis, we are going to keep all the crabs, so there is no need to filter our data. But, in other situations, it may be helpful to look at trends within one specific site, so the filter function would come in handy. 
 
-```{r create_plot_r}
-crab_data <- pie_crab %>% 
-  select(site, latitude, size, air_temp, water_temp)
+#### Summarise function
 
-variables <- sort(unique(as.character(names(crab_data))))
+To better understand the `summarise()` function, we will filter the data to a specific site and calculate some summary statistics about that site.
 
-choices3 <- expand.grid(
-  x = c(variables),
-  y = c(variables),
-  color = c(variables),
-  stringsAsFactors = FALSE
-) %>% 
-  filter(x != y)
+```{r filter-summ_func}
+crab_data <- pie_crab %>%
+  select(date, site, latitude, size, air_temp)
 
-axis_names <- c(
-  size = "Size", 
-  air_temp = "Air Temperature",
-  water_temp = "Water Temperature",
-  latitude = "Latitude",
-  site = "Site")
+site_options_fsum <- sort(unique(as.character(crab_data$site)))
+summary_options_fsum <- c("mean", "sd", "median", "IQR")
 
-nice <- function(v) if (v %in% names(axis_names)) axis_names[[v]] else v
+summary_map_fsum <- c(
+  mean   = "mean_size = mean(size)",
+  sd     = "sd_size = sd(size)",
+  median = "median_size = median(size)",
+  IQR    = "iqr_size = IQR(size)"
+)
 
-make_code_plot <- function(x, y, color) {
-  aes_txt <- paste0("x = ", x, ", y = ", y)
-  if (color != "none") aes_txt <- paste0(aes_txt, ", color = ", color)
+# Every way of ticking 0 to 4 summaries, always in the same order
+stat_grid_fsum <- expand.grid(mean = c(FALSE, TRUE), sd = c(FALSE, TRUE),
+                              median = c(FALSE, TRUE), IQR = c(FALSE, TRUE))
 
-  labs_lines <- c(
-    paste0('x = "', nice(x), '"'),
-    paste0('y = "', nice(y), '"')
-  )
-  if (color != "none") {
-    labs_lines <- c(labs_lines, paste0('color = "', nice(color), '"'))
-  }
-  labs_txt <- paste0("    ", labs_lines, collapse = ",\n")
+stat_sets_fsum <- lapply(seq_len(nrow(stat_grid_fsum)), function(i) {
+  summary_options_fsum[unlist(stat_grid_fsum[i, ])]
+})
 
-  paste0(
-    "crab_data %>%\n",
-    "  ggplot(aes(", aes_txt, ")) +\n",
-    "  geom_point() +\n",
-    "  labs(\n", labs_txt, ") +\n",
-    "  theme_bw()"
-  )
+choices_fsum <- expand.grid(site = site_options_fsum, set = seq_along(stat_sets_fsum),
+                            stringsAsFactors = FALSE)
+choices_fsum$stats <- vapply(choices_fsum$set, function(i) {
+  paste(stat_sets_fsum[[i]], collapse = "|")
+}, character(1))
+
+make_code_filt <- function(site) {
+  paste0('crab_data %>%\n  filter(site == "', site, '")')
 }
 
-choices3$code <- mapply(make_code_plot, 
-                       choices3$x, 
-                       choices3$y, 
-                       choices3$color,
+make_code_full <- function(site, stats) {
+  code <- make_code_filt(site)
+  if (length(stats) == 0) return(code)
+  inner <- paste0("    ", summary_map_fsum[stats], collapse = ",\n")
+  paste0(code, " %>%\n  summarise(\n", inner, "\n  )")
+}
+
+choices_fsum$code <- mapply(function(site, i) make_code_full(site, stat_sets_fsum[[i]]),
+                            choices_fsum$site, choices_fsum$set, USE.NAMES = FALSE)
+
+results_fsum <- lapply(choices_fsum$code, function(code) eval(parse(text = code)))
+
+round_tbl <- function(df) mutate(df, across(where(is.numeric), ~ round(.x, 2)))
+
+choices_fsum$after <- vapply(seq_len(nrow(choices_fsum)), function(i) {
+  if (length(stat_sets_fsum[[choices_fsum$set[i]]]) == 0) {
+    return("<p><em>Tick a summary to see it here.</em></p>")
+  }
+  html_table(round_tbl(results_fsum[[i]]))
+}, character(1))
+choices_fsum$set <- NULL
+
+# The "before" table only depends on the site, so store it once per site
+filtered <- lapply(site_options_fsum, function(s) eval(parse(text = make_code_filt(s))))
+site_tables <- data.frame(site = site_options_fsum, stringsAsFactors = FALSE)
+site_tables$n <- vapply(filtered, nrow, integer(1))
+site_tables$before <- vapply(filtered, function(r) html_table(round_tbl(head(r, 10))),
+                             character(1))
+
+ojs_define(choices_fsum = choices_fsum,
+           site_tables = site_tables,
+           site_options_fsum = site_options_fsum, 
+           summary_options_fsum = summary_options_fsum) 
+```
+
+```{ojs}
+viewof site_fsum = Inputs.select(site_options_fsum, {label: "Site"})
+```
+
+```{ojs}
+viewof stats_fsum = Inputs.checkbox(summary_options_fsum, {label: "Summaries"})
+```
+
+```{ojs}
+//| output: false
+rows_fsum = transpose(choices_fsum)
+tables_fsum = transpose(site_tables)
+match_fsum = rows_fsum.find(d => d.site === site_fsum && d.stats === stats_fsum.join("|"))
+before_fsum = tables_fsum.find(d => d.site === site_fsum)
+```
+
+```{ojs}
+{
+  const pre = document.createElement("pre");
+  pre.className = "plot-code";
+  const code = document.createElement("code");
+  code.textContent = match_fsum.code;
+  pre.appendChild(code);
+  return pre;
+}
+```
+
+```{ojs}
+{
+  const wrap = document.createElement("div");
+  wrap.className = "side-by-side";
+  wrap.innerHTML =
+    "<div><p><b>Before:</b> filtered rows (first 10 of " + before_fsum.n + ")</p>" + before_fsum.before + "</div>" +
+    "<div><p><b>After</b></p>" + match_fsum.after + "</div>";
+  return wrap;
+}
+```
+
+Now let's make a new data set that just has some summary statistics of carapace size. We will utilise the `group_by()` and the `summarise()` (or `summarize()`) functions to do this. Since these samples are taken from multiple sites across a latitudinal gradient, the group by function will help us keep track of the different sites. Test out what happens when you group by site versus when you don't! 
+
+```{r summarise_func}
+crab_data <- pie_crab %>% 
+  select(date,site,latitude,size,air_temp)
+
+group_options_gsum <- c("none", "site")
+summary_options_gsum <- c("mean", "sd", "median", "IQR")
+
+summary_map_gsum <- c(
+  mean   = "mean_size = mean(size)",
+  sd     = "sd_size = sd(size)",
+  median = "median_size = median(size)",
+  IQR    = "iqr_size = IQR(size)"
+)
+
+stat_grid_gsum <- expand.grid(mean = c(FALSE, TRUE), sd = c(FALSE, TRUE),
+                              median = c(FALSE, TRUE), IQR = c(FALSE, TRUE))
+
+stat_sets_gsum <- lapply(seq_len(nrow(stat_grid_gsum)), function(i){
+  summary_options_gsum[unlist(stat_grid_gsum[i, ])]
+})
+
+choices_gsum <- expand.grid(
+  group = group_options_gsum,
+  set = seq_along(stat_sets_gsum),
+  stringsAsFactors = FALSE
+)
+
+choices_gsum$stats <- vapply(choices_gsum$set, function(i) {
+  paste(stat_sets_fsum[[i]], collapse = "|")
+}, character(1))
+
+make_code_summarise <- function(group, stats){
+  stats <- strsplit(stats, "|", fixed = TRUE)[[1]]
+  lines <- "crab_data %>%"
+  if (group != "none") {
+    lines <- c(lines, paste0("  group_by(", group, ") %>%"))
+  }
+
+  if (length(stats) == 0) {
+    lines <- c(lines, "  summarise(n = n())")
+  } else {
+    inner <- paste0("    ", summary_map_gsum[stats], collapse = ",\n")
+    lines <- c(lines, "  summarise(", inner, "  )")
+  }
+
+  paste(lines, collapse = "\n")
+}
+
+choices_gsum$code <- mapply(make_code_summarise, 
+                            choices_gsum$group, choices_gsum$stats,
+                            USE.NAMES = FALSE)
+
+results_gsum <- lapply(choices_gsum$code, function(code) eval(parse(text = code)))
+
+choices_gsum$table <- vapply(results_gsum, function(r) {
+  html_table(mutate(r, across(where(is.numeric), ~ round(.x, 2))))
+}, character(1))
+
+ojs_define(choices_gsum = choices_gsum,
+           group_options_gsum = group_options_gsum,
+           summary_options_gsum = summary_options_gsum)
+```
+
+```{ojs summary_input1}
+viewof group_gsum = Inputs.select(group_options_gsum, {label: "Group by"})
+```
+
+```{ojs}
+viewof stats_gsum = Inputs.checkbox(summary_options_gsum, {label: "Summaries"})
+```
+
+```{ojs summary_input3}
+//| output: false
+rows_gsum = transpose(choices_gsum)
+match_gsum = rows_gsum.find(d => d.group === group_gsum && d.stats === stats_gsum.join("|"))
+```
+
+```{ojs summary_display1}
+{
+  const pre = document.createElement("pre");
+  pre.className = "plot-code";
+  const code = document.createElement("code");
+  code.textContent = match_gsum.code;
+  pre.appendChild(code);
+  return pre;
+}
+```
+
+```{ojs summary_display2}
+{
+  const div = document.createElement("div");
+  div.innerHTML = match_gsum.table;
+  return div;
+}
+```
+
+### Plotting Our Data
+
+One important step in data exploration is visualization. We can use plots to get an understanding of how our variables are related to each other. 
+
+`geom_point()` draws one dot per row of your data. Choose which columns go on each axis and optionally colour the dots by a third column. See what relationships you can find between different variables.
+
+I am going to use the `select()` and `summarise()` functions to help clean the data to create a figure using `ggplot2`. 
+
+```{r}
+#| echo: true
+crab_summary <- crab_data %>% 
+  select(site, size, latitude) %>% 
+  group_by(site) %>% 
+  summarise(mean_size = mean(size), 
+            latitude = unique(latitude),
+            sd_size = sd(size))
+```
+
+```{r, fig.cap="Fiddler crab carapace size (mm) in relation to latitude. Light grey points represent individual observations, while black larger points show mean values for sample sites. Smooth shows positive relationship between carapace size and latitude."}
+crab_summary <- crab_data %>% 
+  select(site, size, latitude) %>% 
+  group_by(site) %>% 
+  summarise(mean_size = mean(size), 
+            latitude = unique(latitude),
+            sd_size = sd(size)) 
+
+ggplot() + 
+  geom_jitter(data = crab_data, 
+              aes(x = latitude, y = size), 
+              color = "grey50", alpha = 0.5) + 
+  geom_point(data = crab_summary, 
+             aes(x = latitude, y = mean_size), 
+             color = "grey30", size = 3) + 
+  geom_smooth(data = crab_data, 
+              aes(x = latitude, y = size), 
+              formula = y~x, method = "lm",
+              color = "black") +
+  labs(x = "Latitude", y = "Carapace size (mm)") +
+  theme_classic()
+```
+
+See if you can create the code by changing the options with the dropdowns.
+
+```{r create_plot_r}
+data_geom <- c("point", "jitter")
+smooths <- c("none", "gam", "lm")
+themes <- sort(c("bw", "classic", "minimal", "void"))
+
+plot_choices <- expand.grid(
+  data_geom = data_geom,
+  smooths = smooths,
+  themes = themes,
+  stringsAsFactors = FALSE
+) 
+
+themes_map <- c(
+  bw = "  theme_bw()",
+  classic = "  theme_classic()",
+  minimal = "  theme_minimal()",
+  void = "  theme_void()"
+)
+
+make_code_plot <- function(data_geom, smooths, themes) {
+  
+  lines <- "ggplot() +"
+  if (data_geom == "point") {
+    lines <- c(lines, paste0("  geom_point(data = crab_data,
+          aes(x = latitude, y = size),
+          color = 'grey50', alpha = 0.5) +"))
+  } else {
+    lines <- c(lines, paste0("  geom_jitter(data = crab_data,
+          aes(x = latitude, y = size),
+          color = 'grey50', alpha = 0.5) +"))
+  }
+  
+  lines <- c(lines, paste0("  geom_point(data = crab_summary,
+          aes(x = latitude, y = mean_size), 
+          color = 'grey30', size = 3) +"))
+  
+  formula_txt <- if (smooths == "gam") "y ~ s(x)" else "y ~ x"
+  if (smooths != "none") {
+  lines <- c(lines, paste0("  geom_smooth(data = crab_data,
+          aes(x = latitude, y = size), 
+          method = '", smooths, "',
+          formula = ", formula_txt, ",
+          color = 'black') +"))
+  }
+  
+  lines <- c(lines, paste0("  labs(x = 'Latitude', y = 'Carapace size (mm)') +"))
+  
+  lines <- c(lines, paste0(themes_map[themes]))
+
+  paste(lines, collapse = "\n")
+}
+
+plot_choices$code <- mapply(make_code_plot,
+                       plot_choices$data_geom,
+                       plot_choices$smooths,
+                       plot_choices$themes,
                        USE.NAMES = FALSE)
 
-choices3$image <- vapply(choices3$code, function(code) {
+plot_choices$image <- vapply(plot_choices$code, function(code) {
   plot_to_uri(eval(parse(text = code)))
-  }, 
+  },
   character(1), USE.NAMES = FALSE)
 
-ojs_define(choices3 = choices3,
-           variables = variables)
+ojs_define(plot_choices = plot_choices,
+           geom_options = data_geom, 
+           smooth_options = smooths,
+           theme_options = themes)
 ```
 
 ```{ojs dropdown_x}
-viewof x = Inputs.select(variables, {label: "X axis"})
+viewof geom_sel = Inputs.select(geom_options, {label: "Geom"})
 ```
 
 ```{ojs dropdown_y}
-viewof y = Inputs.select(variables, {label: "Y axis"})
+viewof smooth_sel = Inputs.select(smooth_options, {label: "Smooths"})
 ```
 
 ```{ojs dropdown_color}
-viewof color = Inputs.select(variables, {label: "Colour by"})
+viewof theme_sel = Inputs.select(theme_options, {label: "Themes"})
 ```
 
 ```{ojs transpose}
 //| output: false
-rows3 = transpose(choices3)
-match3 = rows3.find(d => d.x === x && d.y === y && d.color === color)
+rows_plot = transpose(plot_choices)
+match_plot = rows_plot.find(d => 
+d.data_geom === geom_sel && d.smooths === smooth_sel && d.themes === theme_sel)
 ```
 
 ```{ojs prevent_same_dropdowns}
 {
-if (!match3) {
-const p = document.createElement("p");
-p.textContent = "Pick two different columns for X and Y.";
-return p;
-}
 const img = document.createElement("img");
-img.src = match3.image;
+img.src = match_plot.image;
 img.style.maxWidth = "100%";
 return img;
 }
@@ -293,8 +575,9 @@ The code that made this plot:
 const pre = document.createElement("pre");
 pre.className = "plot-code";
 const code = document.createElement("code");
-code.textContent = match3 ? match3.code : "";
+code.textContent = match_plot ? match_plot.code : "";
 pre.appendChild(code);
 return pre;
 }
 ```
+

@@ -2,15 +2,13 @@ project:
   type: website
 
 website:
-  title: "website-pilot"
+  title: "Visualizing R"
   navbar:
    left:
-      - href: index.qmd
-        text: Home
       - href: bergmanns-rule.qmd
-        text: "Bergmann's Rule"
+        text: "Home"
       - href: sources.qmd
-        text: "References"
+        text: "About"
 format:
   html:
     theme:
