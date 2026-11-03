@@ -5,7 +5,7 @@ website:
   title: "Visualizing R"
   navbar:
    left:
-      - href: bergmanns-rule.qmd
+      - href: index.qmd
         text: "Home"
       - href: sources.qmd
         text: "About"
