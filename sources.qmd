@@ -2,10 +2,48 @@
 title: "About"
 ---
 
-This website was created as a project towards the requirements of the Graduate Academic Certificate in Science Communication at McMaster University (2026 - 2027).
+# Sources & Acknowledgements
 
-I used Claude Sonnet 5.5 to create a template for the Quarto documents, which I then customized for the specific project. 
-The project itself was inspired by Andrew Heiss' "Visualizing {dplyr}'s mutate(), summarize(), group_by(), and ungroup() with animations" blog post. 
-The interactivity features were inspired by "Parable of the Polygons" created by Vi Hart and Nicky Case. 
+## About this project
 
-The data set comes from `lterdatasampler`, an R package created by the Long Term Ecological Research program (LTER) Network. 
+This website was developed as a project towards the requirements of the Graduate Academic Certificate in Science Communication at McMaster University (2026–2027).
+
+The website's structure was initially developed with the assistance of Anthropic's Claude Sonnet 5.5, which I used to generate a template for the Quarto documents. I subsequently adapted and customized this template to suit the specific objectives and content of the project.
+
+The interactive visualizations were inspired by two projects in particular. The data manipulation visualizations draw inspiration from Andrew Heiss's (2024) blog post, *Visualizing {dplyr}'s mutate(), summarize(), group_by(), and ungroup() with animations*. The interactive design and emphasis on learning through experimentation were influenced by Vi Hart and Nicky Case's (2014) *Parable of the Polygons*.
+
+The example dataset used throughout the website comes from the `lterdatasampler` R package, developed by contributors to the Long Term Ecological Research (LTER) Network. This package provides educational datasets collected through LTER research sites.
+
+Additional resources that informed the development of the website, including resources on R programming, data visualization, and Quarto website development, are listed below.
+
+## References
+
+### Inspiration and interactive design
+
+::: {.references}
+
+Hart, V., & Case, N. (2014). *Parable of the polygons*. https://ncase.me/polygons/
+
+Heiss, A. (2024, April 4). *Visualizing {dplyr}'s mutate(), summarize(), group_by(), and ungroup() with animations*. https://doi.org/10.59350/d2sz4-w4e25
+
+:::
+
+### R programming and data visualization
+
+::: {.references}
+
+Horst, A., Brun, J., Guo, S., Logan, A., Ran, L., Sternberg, S., & Zhao, K. (2023). *lterdatasampler: Educational dataset examples from the Long Term Ecological Research Program* (Version 0.1.1) [R package]. https://doi.org/10.32614/CRAN.package.lterdatasampler
+
+Kosourova, E. (2023, March 6). *How to write functions in R (with 18 code examples)*. Dataquest. https://www.dataquest.io/blog/write-functions-in-r/
+
+*ggplot smooth line: Add a trend line with geom_smooth*. (2026, June 27). Datanovia. https://www.datanovia.com/learn/data-visualization/ggplot2/smooth-line
+
+:::
+
+### Website development
+
+::: {.references}
+
+Çetinkaya-Rundel, M., & Wickham, C. (n.d.). 14 Websites. In *Quarto: The practical guide*. https://quarto-tdg.org/websites
+
+:::

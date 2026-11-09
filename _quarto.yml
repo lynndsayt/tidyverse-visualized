@@ -9,6 +9,12 @@ website:
         text: "Home"
       - href: sources.qmd
         text: "About"
+   tools:
+      - href: https://github.com/lynndsayt
+      - icon: github
+      - href: https://www.linkedin.com/in/lynndsay-terpsma/
+      - icon: linkedin
+   search: false
 format:
   html:
     theme:

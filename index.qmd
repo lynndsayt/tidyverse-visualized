@@ -12,7 +12,7 @@ library(kableExtra)
 data(pie_crab)
 ```
 
-To learn about the functions of the `tidyverse`, we will explore a dataset from the Long Term Ecological Research program Network. This data describes the body size of Fiddler crabs in salt marshes from Florida to Massachusetts during the summer of 2016. You can read more about this data [here](https://lter.github.io/lterdatasampler/articles/pie_crab_vignette.html)
+To learn about the functions of the tidyverse, we will explore a dataset from the Long Term Ecological Research program Network. This data describes the body size of Fiddler crabs in salt marshes from Florida to Massachusetts during the summer of 2016. You can read more about this data [here](https://lter.github.io/lterdatasampler/articles/pie_crab_vignette.html)
 
 Climate change has caused this species to expand its range northward in response to ocean warming. As a result, we can use this data to observe Bergmann's Rule in action. Bergmann's Rule predicts that organisms at higher latitudes (more north) will have larger body sizes. 
 
@@ -20,12 +20,12 @@ Let's start exploring the data using R and RStudio to see if the sampled Fiddler
 
 ### Exploring the Data
 
-We will need to start by installing the packages needed for these evaluations. We can do that with the `install.packages()` function. This make take a while, but don't worry, once you've install the packages on your computer once, you won't need to do it again.
+We will need to start by installing the packages needed for these evaluations. We can do that with the `install.packages()` function. This may take a while, but don't worry, once you've installed the packages on your computer once, you won't need to do it again. 
 
 ```{r install_packages}
 #| eval: false
 #| echo: true
-install.packages(c("lterdatasampler", "ggplot2", "dyplr"))
+install.packages(c("lterdatasampler", "ggplot2", "dplyr"))
 ```
 
 Now that our packages are installed, we need to load them into our R session. We can do this using the `library()` function, as shown below. This only needs to be done once per session. 
@@ -40,10 +40,10 @@ library(dplyr)
 
 Now that we have the packages loaded, we can get at our data. Let's call it `crab_data`. 
 
-:::{.callout-tip collapse="true"}
+:::{.callout-tip collapse="false"}
 ## Syntax Alert
-The `<-` symbol assigns a value to a named object in R.
-Syntax: `name <- value` (e.g., x <- 42)
+The `<-` symbol assigns a value to a named object in R.\
+Syntax: `name <- value` (e.g., x <- 42)\
 If `x` doesn't exist yet, a new object is created; it `x` does exist, its value is replaced.
 :::
 
@@ -52,7 +52,13 @@ If `x` doesn't exist yet, a new object is created; it `x` does exist, its value 
 crab_data <- data(pie_crab)
 ```
 
-Here is the raw data. We have columns date in the format YYYY-MM-DD, latitude, site (which is an abbreviated sample location), size (which is carapace size in millimeters), air_temp and air_temp_sd (the air temperature and it's standard deviation in Celsius), water_temp and water_temp_df (the water temperature and it's standard deviation), and name (full site name). 
+Here is the raw data, showing 50 rows of the 392 total. We have columns date in the format YYYY-MM-DD, latitude, site (which is an abbreviated sample location), size (which is carapace size in millimeters), air_temp and air_temp_sd (the air temperature and it's standard deviation in Celsius), water_temp and water_temp_df (the water temperature and it's standard deviation), and name (full site name).
+
+:::{.callout-tip collapse="false"}
+## Syntax Alert
+The `%>%` (or `|>`) symbol is the forward pipe operator. It takes the value or expression on the left-hand side and passes it as the first argument to the function on the right-hand side.\
+For example: `head(crab_data)` is the same as `crab_data %>% head()`
+:::
 
 ```{r}
 #| eval: true
@@ -66,15 +72,43 @@ pie_crab %>%
   )
 ```
 
-This data set comes with lots of columns! Let's see how we would be able to narrow it down. We can use the select function to create a new data set that only has the desired columns. Test it out below! Pay attention to how the column names inside the `select()` functions changes as you change what columns to include. Note that only 15 rows are shown, but the data is R actually has 392, and this function will apply to the entire data set. 
+This data set comes with lots of columns! Let's see how we would be able to narrow it down. 
 
 #### Select function
 
+:::{.callout-tip collapse="false"}
+## Syntax Alert
+Functions in R are reusable blocks of code that accept inputs (arguments), perform operations (body) and return an output.\ 
+
+Here is a function with a single argument, r
+```{r}
+#| echo: true
+circumference <- function(r) {
+  #Function body: what the function does to input x
+  2*pi*r
+}
+
+circumference(2)
+```
+
+Here is a function with multiple arguments, x and y
+```{r}
+#| echo: true
+subtract_two_nums <- function(x, y){
+  x - y
+}
+
+subtract_two_nums(3, 1)
+```
+:::
+
+We can use the `select()` function to create a new data set that only has the desired columns. Test it out below! Pay attention to how the column names inside the `select()` functions changes as you change what columns to include. 
+
+
 ```{r select_function}
 crab_data <- pie_crab %>%
-  slice(round(seq(1, n(), length.out = 15))) 
-# %>%
-#   select(date, site, latitude, size, air_temp)
+  slice(round(seq(1, n(), length.out = 15))) %>% 
+  select(!name)
 
 col_options <- c("none", names(crab_data))
 
@@ -146,15 +180,19 @@ match = rows.find(d => d.col1 === col1 && d.col2 === col2 && d.col3 === col3)
 }
 ```
 
+:::{.callout-note}
+The output only shows the first 15 rows of the resulting data, but in reality, there is 392 rows in the full data set!
+:::
+
 #### Filter function
 
-Another important function from the `dplyr` package is `filter()`. This function only keeps rows that meet certain conditions. Try it out below. Again, we are only looking at 15 rows of the 392 that the whole data set has. Pay attention to how sites and carapace size are excluded based on the conditions specified in the code. Note that I have selected only the date, site, latitude, size, and air_temp columns for the before data set, to help it fit onto the page.
+Another important function from the `dplyr` package is `filter()`. This function only keeps rows that meet certain conditions. Try it out below. Pay attention to how sites and carapace size are excluded based on the conditions specified in the code. Note that I have selected only the date, site, latitude, size, and air_temp columns for the before data set, to help it fit onto the page.
 
 ```{r filter_func}
 crab_data <- pie_crab %>% 
   slice(round(seq(1, n(), length.out = 20))) %>% 
   mutate(row = row_number(), .before = 1) %>% 
-  select(row, date, site, latitude, size, air_temp)
+  select(!name)
 
 site_options_filt <- c("any", sort(unique(as.character(crab_data$site))))
 size_options_filt <- c(0, 15, 20, 25)
@@ -228,6 +266,10 @@ match_filt = rows_filt.find(d => d.site === site_filt && d.size === min_size_fil
   return wrap;
 }
 ```
+
+:::{.callout-note}
+The output is only showing how the `filter()` function changes the output using only the first 15 rows of data as input.
+:::
 
 For our final analysis, we will want to keep all of our crab observations, so there is no use for the `filter()` function. However, there are other situations in data analysis where it could be beneficial. For example, we could use the `filter()` function to see if there are trends in crab carapace size at a single sampling site. See an example of this, combined with the `summarise()` function below.  
 
@@ -346,7 +388,7 @@ As mentioned above, if we want to see if crabs at more northern sites are larger
 crab_data <- pie_crab %>% 
   select(date,site,latitude,size,air_temp)
 
-group_options_gsum <- c("none", "site")
+group_options_gsum <- c("no grouping", "site")
 summary_options_gsum <- c("mean", "sd", "median", "IQR")
 
 summary_map_gsum <- c(
@@ -376,7 +418,7 @@ choices_gsum$stats <- vapply(choices_gsum$set, function(i) {
 make_code_summarise <- function(group, stats){
   stats <- strsplit(stats, "|", fixed = TRUE)[[1]]
   lines <- "crab_data %>%"
-  if (group != "none") {
+  if (group != "no grouping") {
     lines <- c(lines, paste0("  group_by(", group, ") %>%"))
   }
 
@@ -438,17 +480,44 @@ match_gsum = rows_gsum.find(d => d.group === group_gsum && d.stats === stats_gsu
 }
 ```
 
-Thus we can see that using the `group_by()` function is important to see the trend across the sampling sites. Without it, the parameters are summarised across ALL the data, and we can't compare the different sites to each other. 
+We can see that using the group_by() function is important to see the trend across the sampling sites. Without it, the parameters are summarised across ALL the data, and we can't compare the different sites to each other. 
 
 ### Plotting Our Data
 
 However, summary statistics only give us a numerical was of seeing the trends. An easy way to quickly see trends in data is to use plotting. Creating plots allows for readers to quickly understand the relationships between variables, without having to compute or sort parameters.
 
-Here we will use the `ggplot2` package to visualize our summary statistics. 
+Here we will use the `ggplot2` package to visualize the raw data and site means. 
 
+#### Geoms: point and jitter
 `geom_point()` draws one dot per row of your data and places points exactly on their appropriate x and y coordinate, such that if points overlap, you can only see the top one.
 
-`geom_jitter()` on the other hand, considers the overlapping of points. Using this function instead of `geom_point()` will place points slightly offset of one another so that individual points are more easily visualized.
+`geom_jitter()` on the other hand, considers the overlapping of points. Using this function instead of geom_point() will place points slightly offset of one another so that individual points are more easily visualized.
+
+#### Smooth lines
+`geom_smooth()` is a function for ggplots that fits a trend line and confidence band to your data.
+
+There are many available methods that `geom_smooth()` can use to fit a line to your data, but the most commonly used ones are "lm", "loess", and "gam".
+
+The "lm" option will fit a straight line linear regression to your data.
+
+The "loess" option is the default for `geom_smooth()`, so if you don't specify a method it will use "loess" when your dataset has less than 1,000 points. This method fits a curve that follows the local structure of the data.
+
+The "gam" option is best for large data sets (>1,000 observations), which fits a smooth spline. 
+
+#### Themes
+But what's the point of making a plot if you can't make it pretty! In `ggplot2` there are nine built-in themes that control the non-data display elements of your figure. These nine themes are:
+
+- `theme_grey()`
+- `theme_bw()`
+- `theme_linedraw()`
+- `theme_light()`
+- `theme_dark()`
+- `theme_minimal()`
+- `theme_classic()`
+- `theme_void()`
+- `theme_test()`
+
+#### Putting it all together
 
 Since our examples before did not create a new named object, I am going to start with the `select()` and `summarise()` functions to summarise the data, so that I can use these data in my figure. 
 
@@ -464,9 +533,11 @@ crab_summary <- crab_data %>%
             sd_size = sd(size))
 ```
 
-After creating this summary data, I can use both the original and summary datasets to create a beautiful plot. 
+After creating this summary data, I can use both the original and summary data sets to create a beautiful plot. 
 
-```{r, fig.cap="Fiddler crab carapace size (mm) in relation to latitude. Light grey points represent individual observations, while black larger points show mean values for sample sites. Smooth shows positive relationship between carapace size and latitude."}
+```{r}
+#| label: fig-plot1
+#| fig-cap: "Fiddler crab carapace size (mm) in relation to latitude. Light grey points represent individual observations, while black larger points show mean values for sample sites. Smooth shows positive relationship between carapace size and latitude."
 crab_summary <- crab_data %>% 
   select(site, size, latitude) %>% 
   group_by(site) %>% 
@@ -474,16 +545,13 @@ crab_summary <- crab_data %>%
             latitude = unique(latitude),
             sd_size = sd(size)) 
 
-ggplot() + 
-  geom_jitter(data = crab_data, 
-              aes(x = latitude, y = size), 
-              color = "grey50", alpha = 0.5) + 
+ggplot(data = crab_data, 
+       aes(x = latitude, y = size)) + 
+  geom_jitter(color = "grey50", alpha = 0.5) + 
   geom_point(data = crab_summary, 
              aes(x = latitude, y = mean_size), 
              color = "grey30", size = 3) + 
-  geom_smooth(data = crab_data, 
-              aes(x = latitude, y = size), 
-              formula = y~x, method = "lm",
+  geom_smooth(formula = y~x, method = "lm",
               color = "black") +
   labs(x = "Latitude", y = "Carapace size (mm)") +
   theme_classic()
@@ -495,8 +563,8 @@ Pay close attention to which functions and calls change when you select differen
 
 ```{r create_plot_r}
 data_geom <- c("point", "jitter")
-smooths <- c("none", "gam", "lm")
-themes <- sort(c("bw", "classic", "minimal", "void"))
+smooths <- c("none", "lm", "loess", "gam")
+themes <- sort(c("grey", "bw", "linedraw", "light", "dark", "minimal", "classic", "void", "test"))
 
 plot_choices <- expand.grid(
   data_geom = data_geom,
@@ -506,22 +574,26 @@ plot_choices <- expand.grid(
 ) 
 
 themes_map <- c(
+  grey = "  theme_grey()",
   bw = "  theme_bw()",
-  classic = "  theme_classic()",
+  linedraw = "  theme_linedraw()",
+  light = "  theme_light()",
+  dark = "  theme_dark()",
   minimal = "  theme_minimal()",
-  void = "  theme_void()"
+  classic = "  theme_classic()",
+  void = "  theme_void()",
+  test = "  theme_test()"
 )
 
 make_code_plot <- function(data_geom, smooths, themes) {
   
-  lines <- "ggplot() +"
+  lines <- "ggplot(data = crab_data,
+          aes(x = latitude, y = size)) +"
   if (data_geom == "point") {
-    lines <- c(lines, paste0("  geom_point(data = crab_data,
-          aes(x = latitude, y = size),
+    lines <- c(lines, paste0("  geom_point(
           color = 'grey50', alpha = 0.5) +"))
   } else {
-    lines <- c(lines, paste0("  geom_jitter(data = crab_data,
-          aes(x = latitude, y = size),
+    lines <- c(lines, paste0("  geom_jitter(
           color = 'grey50', alpha = 0.5) +"))
   }
   
@@ -531,8 +603,7 @@ make_code_plot <- function(data_geom, smooths, themes) {
   
   formula_txt <- if (smooths == "gam") "y ~ s(x)" else "y ~ x"
   if (smooths != "none") {
-  lines <- c(lines, paste0("  geom_smooth(data = crab_data,
-          aes(x = latitude, y = size), 
+  lines <- c(lines, paste0("  geom_smooth(
           method = '", smooths, "',
           formula = ", formula_txt, ",
           color = 'black') +"))
@@ -603,6 +674,77 @@ return pre;
 }
 ```
 
+:::{.callout-tip}
+An alternative to creating a separate data set is the use the `stat_summary()` instead of `summarise()` + `geom_point()` 
+
+For example:
+```{r}
+#| echo: true
+#| eval: false
+ggplot(data = crab_data, 
+       aes(x = latitude, y = size)) + 
+  geom_jitter(color = "grey50", alpha = 0.5) + 
+  stat_summary(fun = mean, geom = "point",
+               color = 'grey30', size = 3) +
+  geom_smooth(formula = y~x, method = "lm",
+              color = "black") +
+  labs(x = "Latitude", y = "Carapace size (mm)") +
+  theme_classic()
+```
+
+Note how `geom_point(crab_summary, ...)` was replaced with `stat_summary(fun = mean, geom = "point")` but the resulting figure is the same!
+:::
+
 Now that you have created a plot, we can see that body size does indeed increase with latitude. This shows that the data follows the predictions posed by Bergmann's Rule.
 
-You also now know how to conduct a simple analysis using the `dplyr` and `ggplot2` functions. The beauty of `tidyverse` packages in R is that they follow an English type grammar structure, so instead of thinking purely in code, you can think about what you want to do to your data, and translate that into functions. 
+### Conclusion
+
+You also now know how to conduct a simple analysis using the `dplyr` and `ggplot2` functions. The beauty of `tidyverse` packages in R is that they follow an English type grammar structure, so instead of thinking purely in code, you can think about what you want to do to your data and translate that into functions. 
+
+A full workflow for this kind of analysis is shared below.
+
+```{r}
+#| echo: true
+#| label: tbl-summ
+#| tbl-cap: "Summary statistics for fiddler crab carapace size, measured in milllimetres (mm) for 392 crabs across 13 different sites."
+
+# load libraries
+library(lterdatasampler)
+library(dplyr)
+library(ggplot2)
+library(knitr) # for pretty tables
+
+# load data 
+data(pie_crab)
+
+# create summary table
+summ_tble <- pie_crab %>% 
+  select(site, size, latitude) %>% 
+  group_by(site) %>% 
+  summarise(mean_size = mean(size), 
+            latitude = unique(latitude),
+            sd_size = sd(size)) 
+
+# make the table print with a caption
+summ_tble %>% 
+  kable()
+```
+```{r}
+#| echo: true
+#| label: fig-plot2
+#| fig-cap: "Fiddler crab carapace size (mm) in relation to latitude. Light grey points represent individual observations, while black larger points show mean values for sample sites. Smooth shows positive relationship between carapace size and latitude."
+
+
+# plot it!
+ggplot(data = pie_crab, 
+       aes(x = latitude, y = size)) + 
+  geom_jitter(color = "grey50", alpha = 0.5) + 
+  geom_point(data = summ_tble, 
+             aes(x = latitude, y = mean_size), 
+             color = "grey30", size = 3) + 
+  geom_smooth(formula = y~x, method = "lm",
+              color = "black") +
+  labs(x = "Latitude", y = "Carapace size (mm)") +
+  theme_classic()
+```
+
