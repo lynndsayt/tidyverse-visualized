@@ -4,8 +4,19 @@
 .hl-table tr.kept td { background: #d8f0d8; font-weight: 600; }
 .hl-table tr.dropped td { color: #999; text-decoration: line-through; }
 .hl-table td.new, .hl-table th.new { background: #fff3b0; }
-.side-by-side { display: flex; gap: 1.5rem; align-items: flex-start; }
-.side-by-side > div { overflow-x: auto; min-width: 0; }
+.side-by-side { 
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items:
+  flex-start; 
+  width: 100%;
+}
+.side-by-side > div { 
+  overflow-x: auto; 
+  min-width: 0; 
+  width: 100%;
+}
 .hl-table { font-size: 0.75rem; }
 
 .plot-and-code { display: flex; gap: 1.5rem; align-items: flex-start; flex-wrap: wrap; }
@@ -24,3 +35,8 @@
 
 .hl-table td.kept-col, .hl-table th.kept-col { background: #d8f0d8; font-weight: 600; }
 .hl-table td.dropped-col, .hl-table th.dropped-col { color: #999; text-decoration: line-through; }
+
+.references p {
+  padding-left: 2em;
+  text-indent: -2em;
+}
